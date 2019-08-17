@@ -35,7 +35,7 @@ void TextureFile::readFromFile(std::filesystem::path path) {
         char tagsig[5];
         input.read(tagsig, 4);
         tagsig[4] = 0x00;
-        if (std::string_view(taggsig) != "GGAT") {
+        if (std::string_view(tagsig) != "GGAT") {
             input.seekg(-4, std::istream::cur);//This is not a tag
             break;
         }

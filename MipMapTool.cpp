@@ -35,7 +35,7 @@ void printHelp() {
     << "I can combine the best mipmaps like so:\n"
     << "  mipmaptool \"P:/tex_mip4096_co.paa\" \"P:\\tex_mip2048_co.paa\" \"P:/tex_mip4_co.paa\"\n"
     << " These filenames have to be in a specific format xxx_mip1234_yy.paa, output file will be xxx_yy.paa\n"
-    << " (for you nerds out there the regex is (.*)_mip(\\d*)(.*)\\.paa )\n"
+    << " (for you nerds out there the regex is (.*)_mip(\\d*)(([^\d]*)*)\\.paa )\n"
     << "Or I also can combine the best mipmaps like so:\n"
     << "  mipmaptool output \"P:/output_co.paa\" \"P:/file1_co.paa\" \"P:\\file2_co.paa\"\n"
     << " (which writes into specified output file)\n"
@@ -110,20 +110,20 @@ int main(int argc, char* argv[]) {
             std::filesystem::path inputFile(file);
             auto filename = inputFile.filename().string();
 
-            std::regex reg("(.*)_mip(\\d*)(.*)\\.paa");
+            std::regex reg("(.*)_mip(\\d*)([^\\d]*)\\.paa");
             std::cmatch cm;
             std::regex_match(filename.c_str(), cm, reg);
-            if (cm.size() != 3) {
+            if (cm.size() != 4) {
                 std::cerr << "ERROR filename " << filename << " doesn't match correct format";
                 std::cin.get();
                 return 1;
             }
 
             if (!hasOutput) {
-                output = inputFile.parent_path() / (std::string(cm[1]) + std::string(cm[2]) + ".paa");
+                output = inputFile.parent_path() / (std::string(cm[1]) + std::string(cm[3]) + ".paa");
                 hasOutput = true;
             } else {
-                if ((std::string(cm[1]) + std::string(cm[2]) + ".paa") != output.filename()) {
+                if ((std::string(cm[1]) + std::string(cm[3]) + ".paa") != output.filename()) {
                     std::cerr << "ERROR filename " << filename << " doesn't match previously determined filename " << output.filename();
                     std::cin.get();
                     return 1;
