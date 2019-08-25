@@ -82,7 +82,8 @@ int main(int argc, char* argv[]) {
 
                 std::regex reg("(.*)_(.*?)\\.paa");
                 std::cmatch cm;
-                std::regex_match(inputFile.filename().string().c_str(), cm, reg);
+                std::string inputString = inputFile.filename().string();
+                std::regex_match(inputString.c_str(), cm, reg);
                 if (cm.size() == 3) {
                     outputPath = (inputFile.parent_path() / (std::string(cm[1]) + "_mip" + std::to_string(mipmap->getRealSize()) + "_" + std::string(cm[2]) + inputFile.extension().string()));
 
