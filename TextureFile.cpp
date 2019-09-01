@@ -7,8 +7,8 @@ bool MipMap::readMipmap(std::istream& input, uint32_t expectedDataSize) {
     input.read(reinterpret_cast<char*>(&height), 2);
     if (!width || !height) return false;
 
-    if (width != height) {
-        std::cout << "\tWARN width!=height " << width << "!=" << height << "\n";
+    if ((width & 0x7FFF) != height) {
+        std::cout << "\tWARN width!=height " << (width & 0x7FFF) << "!=" << height << "\n";
     }
 
     uint32_t length = 0;
