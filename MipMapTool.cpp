@@ -49,6 +49,7 @@ void printHelp() {
 }
 
 int main(int argc, char* argv[]) {
+    printStart();
     if (argc <= 1) {
         printHelp();
         return 0;
