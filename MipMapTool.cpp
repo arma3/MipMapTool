@@ -3,7 +3,7 @@
 #include "TextureFile.hpp"
 
 void printStart() {
-    std::cout << "MipMap Tool v1 OwO\n";
+    std::cout << "MipMap Tool v4 OwO\n";
 }
 #include <windows.h>
 void printHelp() {

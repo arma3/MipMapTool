@@ -1,7 +1,7 @@
 #include "TextureFile.hpp"
 #include <fstream>
 
-bool MipMap::readMipmap(std::istream& input) {
+bool MipMap::readMipmap(std::istream& input, uint32_t expectedDataSize) {
 
     input.read(reinterpret_cast<char*>(&width), 2);
     input.read(reinterpret_cast<char*>(&height), 2);
@@ -9,6 +9,14 @@ bool MipMap::readMipmap(std::istream& input) {
 
     uint32_t length = 0;
     input.read(reinterpret_cast<char*>(&length), 3);
+    if (length == 0) {
+        if (expectedDataSize > 7) {
+            std::cout << "\tWARN data size is 0, but expected size is " << expectedDataSize << ". Something is wrong with this mip. Using expected size instead\n";
+            length = expectedDataSize - 7; //minus width,height,length
+        } else {
+            std::cout << "\tWARN data size is 0, and expected size is also 0. Something is wrong with this mip.\n";
+        }
+    }
     data.resize(length);
     input.read(data.data(), length);
 
@@ -111,7 +119,13 @@ void TextureFile::readFromFile(std::filesystem::path path) {
         input.seekg(mipmap, std::ifstream::beg);
         auto newMap = std::make_shared<MipMap>();
         newMap->inputPath = inputPath;
-        newMap->readMipmap(input);
+
+        auto nextMap = std::find(mipmapOffsets.begin(), mipmapOffsets.end(), mipmap) + 1;
+        uint32_t expectedSize = 0;
+        if (nextMap != mipmapOffsets.end())
+            expectedSize = *nextMap - mipmap;
+
+        newMap->readMipmap(input, expectedSize);
         auto curPos = input.tellg();
         std::cout << "\tGot mipmap size " << newMap->getRealSize() << "x" << newMap->height << (newMap->width & 0x8000 ? " is compressed" : "") << "\n";
         mipmaps.emplace_back(std::move(newMap));

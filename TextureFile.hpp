@@ -15,7 +15,7 @@ public:
         return width & 0x7fff;
     }
 
-    bool readMipmap(std::istream& input);
+    bool readMipmap(std::istream& input, uint32_t expectedDataSize = 0);
     void writeMipmap(std::ostream& output);
 };
 
