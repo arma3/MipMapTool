@@ -35,7 +35,7 @@ void printHelp() {
     << "I can combine the best mipmaps like so:\n"
     << "  mipmaptool \"P:/tex_mip4096_co.paa\" \"P:\\tex_mip2048_co.paa\" \"P:/tex_mip4_co.paa\"\n"
     << " These filenames have to be in a specific format xxx_mip1234_yy.paa, output file will be xxx_yy.paa\n"
-    << " (for you nerds out there the regex is (.*)_mip(\\d*)(([^\d]*)*)\\.paa )\n"
+    << " (for you nerds out there the regex is (.*)_mip(\\d*)(([^\\d]*)*)\\.paa )\n"
     << "Or I also can combine the best mipmaps like so:\n"
     << "  mipmaptool output \"P:/output_co.paa\" \"P:/file1_co.paa\" \"P:\\file2_co.paa\"\n"
     << " (which writes into specified output file)\n"
