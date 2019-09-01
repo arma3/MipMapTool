@@ -7,12 +7,18 @@ bool MipMap::readMipmap(std::istream& input, uint32_t expectedDataSize) {
     input.read(reinterpret_cast<char*>(&height), 2);
     if (!width || !height) return false;
 
+    if (width != height) {
+        std::cout << "\tWARN width!=height " << width << "!=" << height << "\n";
+    }
+
     uint32_t length = 0;
     input.read(reinterpret_cast<char*>(&length), 3);
+    if (verboseLog)
+        std::cout << "\tMipMap data size: " << length << "\n";
     if (length == 0) {
-        if (expectedDataSize > 7) {
+        if (expectedDataSize) {
             std::cout << "\tWARN data size is 0, but expected size is " << expectedDataSize << ". Something is wrong with this mip. Using expected size instead\n";
-            length = expectedDataSize - 7; //minus width,height,length
+            length = expectedDataSize;
         } else {
             std::cout << "\tWARN data size is 0, and expected size is also 0. Something is wrong with this mip.\n";
         }
@@ -59,6 +65,10 @@ void TextureFile::readFromFile(std::filesystem::path path) {
         tagData.resize(taglen);
         input.read(tagData.data(), taglen);
         tags[std::string(tagName)] = tagData;
+        if (verboseLog) {
+            std::reverse(taggname, &taggname[4]);
+            std::cout << "\tGot tag " << std::string_view(taggname, 4) << " of size " << taglen << "\n";
+        }
     }
 
 
@@ -107,6 +117,8 @@ void TextureFile::readFromFile(std::filesystem::path path) {
 
     uint16_t paletteSize;
     input.read(reinterpret_cast<char*>(&paletteSize), sizeof(paletteSize));
+    if (verboseLog)
+        std::cout << "\tPaletteSize " << paletteSize << "\n";
     paletteData.resize(paletteSize * 3);
     input.read(paletteData.data(), paletteSize * 3);
 
@@ -119,11 +131,18 @@ void TextureFile::readFromFile(std::filesystem::path path) {
         input.seekg(mipmap, std::ifstream::beg);
         auto newMap = std::make_shared<MipMap>();
         newMap->inputPath = inputPath;
+        newMap->verboseLog = verboseLog;
 
         auto nextMap = std::find(mipmapOffsets.begin(), mipmapOffsets.end(), mipmap) + 1;
         uint32_t expectedSize = 0;
         if (nextMap != mipmapOffsets.end())
-            expectedSize = *nextMap - mipmap;
+            expectedSize = *nextMap - mipmap - 7; //minus width,height,length header
+
+        if (verboseLog)
+            std::cout << "\tMipMap Expected size: " << expectedSize << "\n";
+
+        if (expectedSize > 8'388'607)
+            std::cout << "\tWARN MipMap Expected size too big to fit " << expectedSize << ". This will create problems with DXT compressed textures\n";
 
         newMap->readMipmap(input, expectedSize);
         auto curPos = input.tellg();
@@ -132,6 +151,7 @@ void TextureFile::readFromFile(std::filesystem::path path) {
     }
 
     std::cout
+        << "\ttype=" << TypeToString(type) << "\n"
         << "\tmipmaps=" << mipmaps.size() << "\n"
         << "\tisAlpha=" << isAlpha << "\n"
         << "\tisTransparent=" << isTransparent << "\n"

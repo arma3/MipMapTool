@@ -10,6 +10,7 @@ public:
     uint16_t width{ 0 };
     uint16_t height{ 0 };
     std::vector<char> data;
+    bool verboseLog = false;
 
     uint16_t getRealSize() const {
         return width & 0x7fff;
@@ -31,6 +32,21 @@ enum class PAAType : uint16_t {
     invalid
 };
 
+inline std::string_view TypeToString(PAAType t) {
+    switch (t) {
+    case PAAType::def: return "default";
+    case PAAType::DXT1: return "DXT1";
+    case PAAType::DXT3: return "DXT3";
+    case PAAType::DXT5: return "DXT5";
+    case PAAType::ARGB4444: return "ARGB4444";
+    case PAAType::ARGB1555: return "ARGB1555";
+    case PAAType::AI88: return "AI88";
+    case PAAType::invalid: return "invalid";
+    default: return "default";
+    }
+}
+
+
 class TextureFile {
 public:
 
@@ -49,6 +65,7 @@ public:
     std::map<std::string, std::string> tags;
     std::vector<char> paletteData;
     std::vector<std::shared_ptr<MipMap>> mipmaps;
+    bool verboseLog = false;
 
 };
 

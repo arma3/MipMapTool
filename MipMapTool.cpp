@@ -3,7 +3,7 @@
 #include "TextureFile.hpp"
 
 void printStart() {
-    std::cout << "MipMap Tool v4 OwO\n";
+    std::cout << "MipMap Tool v5 OwO\n";
 }
 #include <windows.h>
 void printHelp() {
@@ -32,6 +32,8 @@ void printHelp() {
 
     << "I can unpack your textures like so:\n"
     << "  mipmaptool unpack \"P:/file1_co.paa\" \"P:\\file2_co.paa\"\n"
+    << "I can print info about your texture like so:\n"
+    << "  mipmaptool info \"P:/file1_co.paa\"\n"
     << "I can combine the best mipmaps like so:\n"
     << "  mipmaptool \"P:/tex_mip4096_co.paa\" \"P:\\tex_mip2048_co.paa\" \"P:/tex_mip4_co.paa\"\n"
     << " These filenames have to be in a specific format xxx_mip1234_yy.paa, output file will be xxx_yy.paa\n"
@@ -92,6 +94,18 @@ int main(int argc, char* argv[]) {
 
                 newFile->writeToFile(outputPath);
             }
+        }
+        return 0;
+    }
+
+    if (firstArg == "info") {
+        std::cout << "file info:\n";
+        allArguments.erase(allArguments.begin());
+        for (auto& file : allArguments) {
+            auto texFile = std::make_shared<TextureFile>();
+            std::filesystem::path inputFile(file);//#TODO file exists check
+            texFile->verboseLog = true;
+            texFile->readFromFile(inputFile);
         }
         return 0;
     }
