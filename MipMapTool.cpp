@@ -3,7 +3,7 @@
 #include "TextureFile.hpp"
 
 void printStart() {
-    std::cout << "MipMap Tool v5 OwO\n";
+    std::cout << "MipMap Tool v6 OwO\n";
 }
 #include <windows.h>
 void printHelp() {
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 
     for (auto& texture : textures) {
         for (auto& mipmap : texture->mipmaps) {
-                mipmaps.insert_or_assign(mipmap->width, mipmap);
+                mipmaps.insert_or_assign(mipmap->height, mipmap);
         }
     }
 
