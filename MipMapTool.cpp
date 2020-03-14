@@ -159,6 +159,11 @@ int main(int argc, char* argv[]) {
         allArguments.erase(namestyleArg);
     }
 
+    auto highestMIPArg = std::find_if(allArguments.begin(), allArguments.end(), [](const std::string& arg) {
+        return arg.starts_with("-onlyHighestMip");
+    });
+
+
     if (firstArg == "unpack") {
         std::cout << "Unpacking files:\n";
         allArguments.erase(allArguments.begin());
@@ -175,6 +180,7 @@ int main(int argc, char* argv[]) {
                 std::filesystem::path outputPath = makeOutputPath(inputFile, mipmap, namestyle);
 
                 newFile->writeToFile(outputPath);
+                if (highestMIPArg != allArguments.end()) return 0;
             }
         }
         return 0;
