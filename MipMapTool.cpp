@@ -152,11 +152,12 @@ int main(int argc, char* argv[]) {
         return arg.starts_with("-namestyle");
     });
 
-    char namestyleChar = (*namestyleArg)[10];
-    namestyle = static_cast<NameStyle>(namestyleChar - '0');
+    if (namestyleArg != allArguments.end()) {
+        char namestyleChar = (*namestyleArg)[10];
+        namestyle = static_cast<NameStyle>(namestyleChar - '0');
 
-    allArguments.erase(namestyleArg);
-
+        allArguments.erase(namestyleArg);
+    }
 
     if (firstArg == "unpack") {
         std::cout << "Unpacking files:\n";
