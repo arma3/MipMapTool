@@ -15,6 +15,9 @@ public:
     uint16_t getRealSize() const {
         return width & 0x7fff;
     }
+    bool isCompressed() const {
+        return width & 0x8000;
+    }
 
     bool readMipmap(std::istream& input, uint32_t expectedDataSize = 0);
     void writeMipmap(std::ostream& output);
@@ -50,6 +53,7 @@ inline std::string_view TypeToString(PAAType t) {
 class TextureFile {
 public:
 
+    void readFromStream(std::istream& input);
     void readFromFile(std::filesystem::path path);
     void writeToFile(std::filesystem::path path);
     std::shared_ptr<TextureFile> copyNoMipmap();
@@ -66,6 +70,7 @@ public:
     std::vector<char> paletteData;
     std::vector<std::shared_ptr<MipMap>> mipmaps;
     bool verboseLog = false;
+    bool doLogging = true;
 
 };
 

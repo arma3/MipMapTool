@@ -38,11 +38,7 @@ void MipMap::writeMipmap(std::ostream& output) {
     output.write(data.data(), length);
 }
 
-void TextureFile::readFromFile(std::filesystem::path path) {
-    inputPath = path;
-    std::cout << "Texture read " << inputPath << "\n";
-    std::ifstream input(path, std::ifstream::binary);
-
+void TextureFile::readFromStream(std::istream& input) {
     input.read(reinterpret_cast<char*>(&type), 2);
 
     while (true) {
@@ -141,14 +137,23 @@ void TextureFile::readFromFile(std::filesystem::path path) {
         if (verboseLog)
             std::cout << "\tMipMap Expected size: " << expectedSize << "\n";
 
-        if (expectedSize > 8'388'607)
+        if (doLogging && expectedSize > 8'388'607)
             std::cout << "\tWARN MipMap Expected size too big to fit " << expectedSize << ". This will create problems with DXT compressed textures\n";
 
         newMap->readMipmap(input, expectedSize);
         auto curPos = input.tellg();
-        std::cout << "\tGot mipmap size " << newMap->getRealSize() << "x" << newMap->height << (newMap->width & 0x8000 ? " is compressed" : "") << "\n";
+        if (doLogging)
+            std::cout << "\tGot mipmap size " << newMap->getRealSize() << "x" << newMap->height << (newMap->width & 0x8000 ? " is compressed" : "") << "\n";
         mipmaps.emplace_back(std::move(newMap));
     }
+}
+
+void TextureFile::readFromFile(std::filesystem::path path) {
+    inputPath = path;
+    std::cout << "Texture read " << inputPath << "\n";
+    std::ifstream input(path, std::ifstream::binary);
+
+    readFromStream(input);
 
     std::cout
         << "\ttype=" << TypeToString(type) << "\n"
