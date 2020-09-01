@@ -1,15 +1,36 @@
 #include "TextureFile.hpp"
 #include <fstream>
 
+#include <bitset>
+#include <limits>
+#include <type_traits>
+
+template<typename T>
+//static inline  // static if you want to compile with -mpopcnt in one compilation unit but not others
+typename std::enable_if<std::is_integral<T>::value, unsigned >::type
+popcount(T x)
+{
+    static_assert(std::numeric_limits<T>::radix == 2, "non-binary type");
+
+    // sizeof(x)*CHAR_BIT
+    constexpr int bitwidth = std::numeric_limits<T>::digits + std::numeric_limits<T>::is_signed;
+    // std::bitset constructor was only unsigned long before C++11.  Beware if porting to C++03
+    static_assert(bitwidth <= std::numeric_limits<unsigned long long>::digits, "arg too wide for std::bitset() constructor");
+
+    typedef typename std::make_unsigned<T>::type UT;        // probably not needed, bitset width chops after sign-extension
+
+    std::bitset<bitwidth> bs(static_cast<UT>(x));
+    return bs.count();
+}
+
 bool MipMap::readMipmap(std::istream& input, uint32_t expectedDataSize) {
 
     input.read(reinterpret_cast<char*>(&width), 2);
     input.read(reinterpret_cast<char*>(&height), 2);
     if (!width || !height) return false;
 
-    if ((width & 0x7FFF) != height) {
-        std::cout << "\tWARN width!=height " << (width & 0x7FFF) << "!=" << height << "\n";
-    }
+    if (popcount(getRealSize()) != 1 || popcount(height) != 1) //power of 2 can only have one bit set
+        std::cout << "\tWARN width or height not power of 2 " << (width & 0x7FFF) << "/" << height << "\n";
 
     uint32_t length = 0;
     input.read(reinterpret_cast<char*>(&length), 3);
